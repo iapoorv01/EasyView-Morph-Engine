@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EasyView Morph Engine</title>
+  <link rel="stylesheet" href="popup.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="title">Morph Engine</h1>
+      <p class="subtitle">by EasyView</p>
+    </header>
+
+    <main class="main-content">
+      <div class="prompt-container">
+        <label for="morph-prompt" class="sr-only">How would you like to morph this page?</label>
+        <textarea id="morph-prompt" placeholder="e.g., Make this website distraction free..." rows="3"></textarea>
+        <div class="action-row">
+          <button id="morph-btn" class="primary-btn">
+            <span class="btn-text">Morph Page</span>
+            <span class="btn-icon">✨</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="suggestions">
+        <h3>Suggested Morphs</h3>
+        <div class="chip-group">
+          <button class="chip" data-prompt="Hide YouTube Shorts">Hide YT Shorts</button>
+          <button class="chip" data-prompt="Convert this page into study mode">Study Mode</button>
+          <button class="chip" data-prompt="Make this page easier to understand">Simplify Text</button>
+        </div>
+      </div>
+
+      <div id="status-area" class="status-area hidden">
+        <div class="spinner"></div>
+        <p id="status-text">Processing intent...</p>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>Extended from EasyView</p>
+      <p class="copyright">&copy; EasyView. All Rights Reserved.</p>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

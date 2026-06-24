@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "EasyView Morph Engine",
+  "version": "1.0.0",
+  "description": "A prompt-driven website personalization engine, allowing users to modify any website through natural language. Extended from EasyView.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background/service_worker.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "EasyView Morph Engine"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "content/engine/intent-processor.js",
+        "content/engine/morph-engine.js",
+        "content/morphs/base-morph.js",
+        "content/morphs/youtube-shorts.js",
+        "content/morphs/study-mode.js",
+        "content/content.js"
+      ],
+      "run_at": "document_end"
+    }
+  ]
+}
