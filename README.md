@@ -61,6 +61,22 @@ Morph Engine enables: **User → Website adapts**
 
 ---
 
+## 💻 How to Install (Developer Mode)
+
+Since this is an active R&D repository, it is installed via Chrome Developer Mode:
+
+1. Clone this repository to your local machine:
+   ```bash
+   git clone https://github.com/iapoorv01/EasyView-Morph-Engine.git
+   ```
+2. Open Google Chrome and navigate to `chrome://extensions/`.
+3. Enable **Developer mode** using the toggle in the top right corner.
+4. Click the **Load unpacked** button.
+5. Select the `easyview-morph-engine` folder you just cloned.
+6. The extension is now installed! Click the puzzle icon in Chrome to pin it and try out a prompt.
+
+---
+
 ## ⚙️ How It Works
 
 EasyView Morph Engine acts as an intelligent abstraction layer between the browser DOM and the user's intent.
@@ -88,12 +104,31 @@ graph LR
 
 ---
 
-## 🗺️ Roadmap (3rd Year Extension Path)
-- [x] **Phase 1:** Prompt-Based Website Transformation (V1 Foundation)
-- [ ] **Phase 2:** Automated Website-Type Detection & Morph Recommendations
-- [ ] **Phase 3:** Persistent Morph Profiles (e.g., always apply "ADHD Mode" on Wikipedia)
-- [ ] **Phase 4:** Community Morph Marketplace
-- [ ] **Phase 5:** Generative Morphs - On-the-fly LLM-generated UI adjustments based on DOM context.
+## 🗺️ 3rd Year Extension Path (Roadmap)
+
+This project is structured as a continuous 3rd-year engineering extension track, designed to evolve from a basic rule-based extension into a fully autonomous, AI-driven accessibility platform. *(Note: This roadmap is subject to change based on project circumstances and technical discoveries).*
+
+### Phase 1: Prompt-Based Website Transformation (Current)
+- Build the core V1 extension architecture.
+- Implement the baseline DOM manipulation engine and popup UI.
+- Create hardcoded example morphs (e.g., Study Mode, Hide YouTube Shorts).
+
+### Phase 2: Context-Aware Adaptation & Detection
+- Implement automatic website-type detection (e.g., recognizing Video Platforms vs. Educational Sites).
+- Proactively recommend appropriate morphs to the user before they even type a prompt.
+
+### Phase 3: Persistent Personalization (Morph Profiles)
+- Build the "Morph Profiles" system.
+- Allow users to save custom morph combinations (e.g., "ADHD Focus Mode", "Senior Mode").
+- System learns user preferences over time and auto-applies them to specific domains.
+
+### Phase 4: Community Morph Marketplace
+- Enable users to publish and share their custom morph scripts.
+- Integrate a cloud database to browse, rate, and download community-driven website fixes.
+
+### Phase 5: Fully Generative Morphs (LLM Integration)
+- Connect the Intent Processor directly to an LLM (e.g., Amazon Nova).
+- Allow users to describe arbitrary visual changes, and have the AI generate the exact CSS/JS transformation plan dynamically based on the current DOM context.
 
 ---
 
