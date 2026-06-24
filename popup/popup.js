@@ -3,14 +3,44 @@ document.addEventListener('DOMContentLoaded', () => {
   const morphBtn = document.getElementById('morph-btn');
   const chips = document.querySelectorAll('.chip');
   const statusArea = document.getElementById('status-area');
-  const statusText = document.getElementById('status-text');
+  const statusText = document.querySelector('.status-content h4');
+  const charCount = document.querySelector('.char-count');
+
+  if (charCount) {
+    promptInput.addEventListener('input', () => {
+      charCount.textContent = `${promptInput.value.length} / 500`;
+    });
+  }
 
   chips.forEach(chip => {
+    if (chip.classList.contains('locked')) return;
     chip.addEventListener('click', () => {
       promptInput.value = chip.dataset.prompt;
       promptInput.focus();
     });
   });
+
+  const resetBtn = document.getElementById('reset-btn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', async () => {
+      try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (tab) {
+          chrome.tabs.sendMessage(tab.id, { action: 'RESET_PAGE' }, (response) => {
+            if (chrome.runtime.lastError) {
+              console.error(chrome.runtime.lastError);
+              return;
+            }
+            if (response && response.success) {
+              window.close(); // Close popup when successfully reset
+            }
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  }
 
   morphBtn.addEventListener('click', async () => {
     const prompt = promptInput.value.trim();
@@ -18,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // UI feedback
     morphBtn.disabled = true;
+    morphBtn.style.opacity = '0.7';
     statusArea.classList.remove('hidden');
     statusText.textContent = 'Processing intent...';
 
@@ -31,7 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }, (response) => {
           statusArea.classList.add('hidden');
           morphBtn.disabled = false;
-          
+          morphBtn.style.opacity = '1';
+
           if (chrome.runtime.lastError) {
             console.error('Error sending message:', chrome.runtime.lastError);
             alert('Please refresh the page to use Morph Engine. Note: Extensions cannot run on Chrome Web Store or internal pages.');
@@ -47,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       console.error(err);
       morphBtn.disabled = false;
+      morphBtn.style.opacity = '1';
       statusArea.classList.add('hidden');
     }
   });

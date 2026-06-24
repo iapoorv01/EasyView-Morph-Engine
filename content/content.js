@@ -27,6 +27,14 @@
           sendResponse({ success: false, error: err.message });
         });
       return true; // Keep message channel open for async response
+    } else if (request.action === 'RESET_PAGE') {
+      window.morphEngine.resetAll()
+        .then(() => sendResponse({ success: true }))
+        .catch(err => {
+          console.error(err);
+          sendResponse({ success: false, error: err.message });
+        });
+      return true;
     }
   });
 

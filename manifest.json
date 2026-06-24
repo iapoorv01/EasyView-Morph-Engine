@@ -27,6 +27,7 @@
         "content/morphs/base-morph.js",
         "content/morphs/youtube-shorts.js",
         "content/morphs/study-mode.js",
+        "content/morphs/senior-mode.js",
         "content/content.js"
       ],
       "run_at": "document_end"

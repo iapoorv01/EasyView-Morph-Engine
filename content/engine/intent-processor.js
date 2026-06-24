@@ -20,6 +20,10 @@ window.MorphIntentProcessor = class MorphIntentProcessor {
       {
         keywords: ['study mode', 'focus', 'distraction free', 'concentrate'],
         morphId: 'study-mode'
+      },
+      {
+        keywords: ['senior', 'elderly', 'older', 'readable', 'large text', 'high contrast'],
+        morphId: 'senior-mode'
       }
     ];
   }

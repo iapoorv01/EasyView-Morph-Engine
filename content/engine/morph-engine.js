@@ -52,4 +52,11 @@ window.MorphEngine = class MorphEngine {
     }
     return false;
   }
+
+  async resetAll() {
+    for (const morphId of Array.from(this.activeMorphs.keys())) {
+      await this.undoMorph(morphId);
+    }
+    return true;
+  }
 };

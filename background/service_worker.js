@@ -1,11 +1,12 @@
 // background/service_worker.js
-// EasyView Morph Engine - Background Service Worker
 
-chrome.runtime.onInstalled.addListener(() => {
-  console.log("EasyView Morph Engine installed.");
-  // Initialize default profile or settings
-  chrome.storage.sync.set({ morphProfile: 'default' });
+// Initialize Morph Engine context on extension installation
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
+    // Open EasyView landing page on first install
+    chrome.tabs.create({ url: 'https://easyview.in' });
+  }
+  console.log("EasyView Morph Engine Background Service Worker initialized.");
 });
 
-// Future: Handle communication with external AI APIs (e.g. OpenAI/Anthropic)
-// Future: Manage global state and history of morphs applied
+// Future V2 Features: Listen for contextMenu clicks, sync profile updates, etc.

@@ -4,46 +4,154 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EasyView Morph Engine</title>
-  <link rel="stylesheet" href="popup.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <div class="container">
+  <div class="app-container">
+    <!-- Header -->
     <header class="header">
-      <h1 class="title">Morph Engine</h1>
-      <p class="subtitle">by EasyView</p>
+      <div class="header-left">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4C7 4 2.73 7.11 1 12C2.73 16.89 7 20 12 20C17 20 21.27 16.89 23 12C21.27 7.11 17 4 12 4ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill="#5b45f4"/>
+        </svg>
+        <span class="logo-text">EasyView</span>
+      </div>
+      <button class="icon-btn settings-btn" aria-label="Settings">
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </button>
     </header>
 
+    <!-- Main Content -->
     <main class="main-content">
+      
+      <!-- Hero Banner -->
+      <div class="hero-banner">
+        <div class="hero-icon-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-7.18 7.18a2 2 0 0 1-2.83 0L2 14.17a2 2 0 0 1 0-2.83l7.18-7.18"></path><path d="M13.82 4.82 21 12l-7.18 7.18"></path><path d="m9 11 4 4"></path></svg>
+        </div>
+        <div class="hero-text">
+          <h2>Morph Engine</h2>
+          <p>Clarity for Every Brain</p>
+        </div>
+        
+        <!-- Replicated right side graphic from image -->
+        <div class="hero-graphic">
+          <svg viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="30" y="15" width="70" height="50" rx="4" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+            <circle cx="36" cy="22" r="1.5" fill="#ef4444"/>
+            <circle cx="41" cy="22" r="1.5" fill="#eab308"/>
+            <circle cx="46" cy="22" r="1.5" fill="#22c55e"/>
+            <rect x="36" y="30" width="22" height="24" rx="2" fill="#e0e7ff"/>
+            <rect x="62" y="30" width="30" height="4" rx="1" fill="#e2e8f0"/>
+            <rect x="62" y="38" width="30" height="3" rx="1" fill="#f1f5f9"/>
+            <rect x="62" y="45" width="20" height="3" rx="1" fill="#f1f5f9"/>
+            <rect x="62" y="52" width="25" height="3" rx="1" fill="#f1f5f9"/>
+            
+            <!-- Sparkle Box overlay -->
+            <rect x="75" y="45" width="28" height="28" rx="6" fill="#7c3aed"/>
+            <path d="M89 50L91 55L96 57L91 59L89 64L87 59L82 57L87 55L89 50Z" fill="white"/>
+            <!-- Tiny star decorations -->
+            <path d="M22 30L23 33L26 34L23 35L22 38L21 35L18 34L21 33L22 30Z" fill="#a78bfa"/>
+            <path d="M102 25L103 27L105 28L103 29L102 31L101 29L99 28L101 27L102 25Z" fill="#a78bfa"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Prompt Input -->
       <div class="prompt-container">
-        <label for="morph-prompt" class="sr-only">How would you like to morph this page?</label>
-        <textarea id="morph-prompt" placeholder="e.g., Make this website distraction free..." rows="3"></textarea>
-        <div class="action-row">
-          <button id="morph-btn" class="primary-btn">
-            <span class="btn-text">Morph Page</span>
-            <span class="btn-icon">✨</span>
+        <textarea id="morph-prompt" placeholder="Describe how you want this website to look..." rows="3" maxlength="500"></textarea>
+        <div class="char-count">0 / 500</div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button id="reset-btn" class="btn btn-outline">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+          Reset
+        </button>
+        <button id="morph-btn" class="btn btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>
+          Morph Website
+        </button>
+      </div>
+
+      <!-- Quick Presets -->
+      <div class="section-card">
+        <div class="section-header">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="#5b45f4" stroke="#5b45f4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          <h3>Quick Presets</h3>
+        </div>
+        <div class="preset-chips">
+          <button class="chip chip-red" data-prompt="Hide YouTube Shorts">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>
+            Hide Shorts
+          </button>
+          <button class="chip chip-blue" data-prompt="Convert this page into study mode">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>
+            Study Mode
+          </button>
+          <button class="chip chip-green" data-prompt="Make this page senior friendly">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Senior Mode
           </button>
         </div>
       </div>
 
-      <div class="suggestions">
-        <h3>Suggested Morphs</h3>
-        <div class="chip-group">
-          <button class="chip" data-prompt="Hide YouTube Shorts">Hide YT Shorts</button>
-          <button class="chip" data-prompt="Convert this page into study mode">Study Mode</button>
-          <button class="chip" data-prompt="Make this page easier to understand">Simplify Text</button>
+      <!-- Pro Features -->
+      <div class="section-card">
+        <div class="section-header">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <h3>Pro Features (Soon)</h3>
+          <span class="badge-pro">PRO</span>
+        </div>
+        <div class="preset-chips">
+          <button class="chip chip-locked" disabled>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            Auto-Detect
+          </button>
+          <button class="chip chip-locked" disabled>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            Cloud Profiles
+          </button>
+          <button class="chip chip-locked" disabled>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            Marketplace
+          </button>
         </div>
       </div>
 
-      <div id="status-area" class="status-area hidden">
-        <div class="spinner"></div>
-        <p id="status-text">Processing intent...</p>
+      <!-- Status Area -->
+      <div id="status-area" class="status-card hidden">
+        <!-- Replicated dotted spinner -->
+        <svg class="spinner" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 4">
+          <circle cx="12" cy="12" r="10"></circle>
+        </svg>
+        <div class="status-content">
+          <h4>Processing...</h4>
+          <p>Applying your preferences to this website</p>
+        </div>
       </div>
+
     </main>
 
+    <!-- Footer -->
     <footer class="footer">
-      <p>Extended from EasyView</p>
-      <p class="copyright">&copy; EasyView. All Rights Reserved.</p>
+      <div class="footer-left">
+        <a href="https://easyview.in" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          Website
+        </a>
+        <a href="https://easyview.in/contact" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          Contact
+        </a>
+      </div>
+      <div class="footer-right">
+        <span>© EasyView</span>
+      </div>
     </footer>
   </div>
   <script src="popup.js"></script>
