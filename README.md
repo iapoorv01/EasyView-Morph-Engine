@@ -59,6 +59,34 @@ Morph Engine enables: **User → Website adapts**
 *   **Study Mode:** Instantly strips away sidebars, ads, and visual noise, replacing them with a warm, high-contrast reading environment.
 *   **Custom Filters:** Hide specific platform features like YouTube Shorts to reclaim your attention.
 
+## 📂 Project Structure
+
+```text
+easyview-morph-engine/
+├── manifest.json              # Extension manifest (V3)
+├── background/
+│   └── service_worker.js      # Background script for global state and APIs
+├── content/
+│   ├── content.js             # Main entry point for content script injection
+│   ├── engine/
+│   │   ├── morph-engine.js    # Transformation state and orchestration
+│   │   └── intent-processor.js# Natural language to intent mapping
+│   └── morphs/
+│       ├── base-morph.js      # Base class for morph implementations
+│       ├── youtube-shorts.js  # Implementation: Hide YouTube Shorts
+│       └── study-mode.js      # Implementation: Study Mode
+├── docs/
+│   ├── architecture.md        # Technical architecture details
+│   ├── design.md              # Design choices and visual branding
+│   ├── integration_log.md     # External feature updates and engineering log
+│   ├── problem.md             # The core problem space EasyView is solving
+│   └── v2-dynamic-ui-plan.md  # Documentation for UI enhancements
+└── popup/
+    ├── popup.html             # User interface structure
+    ├── popup.css              # Styling (EasyView branding)
+    └── popup.js               # UI logic and messaging to content script
+```
+
 ---
 
 ## 💻 How to Install (Developer Mode)
