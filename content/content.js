@@ -13,6 +13,7 @@
   // Initialize Core Systems
   window.morphEngine = new window.MorphEngine();
   window.intentProcessor = new window.MorphIntentProcessor();
+  window.domScanner = new window.MorphDOMScanner();
 
   // Dispatch event so morphs can register themselves
   document.dispatchEvent(new Event('MorphEngineReady'));
