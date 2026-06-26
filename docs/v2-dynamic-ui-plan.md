@@ -23,7 +23,7 @@ Before the AI can modify a site, it needs to understand what's there. We need a 
     *   Filter out heavy SVG paths, deeply nested irrelevant divs, and scripts to keep the payload small.
     *   Output a simplified JSON tree representing the UI's structure.
 
-### Step 2: The LLM Brain (Prompting & Schema)
+### ✅ Step 2: The LLM Brain (Prompting & Schema) [COMPLETED]
 We will connect the extension to an LLM (e.g., Gemini) via the background service worker. The LLM will receive the user's prompt and the DOM map, and return a strict JSON instruction set.
 *   **Action**: Update `background/service_worker.js` to handle API calls.
 *   **JSON Schema Expected from LLM**:
