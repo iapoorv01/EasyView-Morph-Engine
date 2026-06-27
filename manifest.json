@@ -26,6 +26,7 @@
         "content/engine/morph-engine.js",
         "content/engine/dom-scanner.js",
         "content/morphs/base-morph.js",
+        "content/morphs/shadow-morph.js",
         "content/morphs/youtube-shorts.js",
         "content/morphs/study-mode.js",
         "content/morphs/senior-mode.js",

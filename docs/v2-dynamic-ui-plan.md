@@ -43,7 +43,7 @@ We will connect the extension to an LLM (e.g., Gemini) via the background servic
     }
     ```
 
-### Step 3: The `ShadowMorph` Execution Class
+### ✅ Step 3: The `ShadowMorph` Execution Class [COMPLETED]
 This is the new engine component that actually manipulates the page based on the LLM's JSON.
 *   **Action**: Create `content/morphs/shadow-morph.js` (extending `BaseMorph`).
 *   **Execution Flow**:
