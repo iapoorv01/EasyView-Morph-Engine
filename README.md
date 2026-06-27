@@ -76,6 +76,7 @@ easyview-morph-engine/
 │       ├── youtube-shorts.js  # Implementation: Hide YouTube Shorts
 │       └── study-mode.js      # Implementation: Study Mode
 ├── docs/
+│   ├── adr/                   # Architecture Decision Records
 │   ├── architecture.md        # Technical architecture details
 │   ├── design.md              # Design choices and visual branding
 │   ├── integration_log.md     # External feature updates and engineering log
