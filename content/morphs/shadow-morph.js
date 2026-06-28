@@ -86,9 +86,69 @@ window.ShadowMorph = class ShadowMorph extends window.BaseMorph {
     }
 
     console.log(`ShadowMorph applied on ${this.targetContainerSelector}.`);
+
+    // 5. Data Sync Observer (Step 4)
+    this.setupObserver();
+  }
+
+  updateBindings(shadowRoot) {
+    for (const [newId, oldSelector] of Object.entries(this.dataBindings)) {
+      const newEl = shadowRoot.getElementById(newId);
+      const oldEl = this.originalContainer.querySelector(oldSelector);
+      
+      if (newEl && oldEl) {
+        if (oldEl.tagName === 'IMG' && newEl.tagName === 'IMG') {
+          if (newEl.src !== oldEl.src) newEl.src = oldEl.src;
+        } else {
+          if (newEl.innerHTML !== oldEl.innerHTML) newEl.innerHTML = oldEl.innerHTML;
+        }
+      }
+    }
+  }
+
+  setupObserver() {
+    if (!this.originalContainer || !this.shadowHost) return;
+
+    // Watch the parent of the original container for new sibling nodes (like new posts in a feed)
+    // and watch the original container itself for internal data changes.
+    this.observer = new MutationObserver((mutations) => {
+      let needsSync = false;
+      for (const mutation of mutations) {
+        if (mutation.type === 'childList' || mutation.type === 'characterData' || mutation.type === 'attributes') {
+          needsSync = true;
+          break;
+        }
+      }
+
+      if (needsSync) {
+        this.updateBindings(this.shadowHost.shadowRoot);
+      }
+    });
+
+    // Observe both the container and its parent (in case new elements of the same selector are appended)
+    this.observer.observe(this.originalContainer, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true
+    });
+    
+    if (this.originalContainer.parentNode) {
+      this.observer.observe(this.originalContainer.parentNode, {
+        childList: true
+      });
+    }
+
+    console.log(`ShadowMorph Observer attached for ${this.targetContainerSelector}.`);
   }
 
   async revert() {
+    // Disconnect observer
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+
     // Restore original visibility
     if (this.originalContainer) {
       this.originalContainer.style.visibility = this.originalStyles.visibility;
