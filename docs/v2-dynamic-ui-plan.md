@@ -57,7 +57,7 @@ If the user scrolls down and the website fetches more posts, our custom UI needs
 *   **Action**: Implement `MutationObserver` within `ShadowMorph`.
 *   **Logic**: Watch the parent container of the hidden original UI. If a new `.feed-shared-update-v2` node is added by the website, automatically extract its data, apply the template, and append it to our custom Newspaper view.
 
-### Step 5: UI & Popup Wiring
+### ✅ Step 5: UI & Popup Wiring [COMPLETED]
 Connect the frontend popup to the new background/content script flow.
 *   **Action**: Update `popup.js` to send the prompt to the background script, show a loading animation (since LLM calls take a few seconds), and display success/error states based on the engine's response.
 

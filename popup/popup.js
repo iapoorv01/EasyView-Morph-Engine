@@ -50,14 +50,14 @@ document.addEventListener('DOMContentLoaded', () => {
     morphBtn.disabled = true;
     morphBtn.style.opacity = '0.7';
     statusArea.classList.remove('hidden');
-    statusText.textContent = 'Processing intent...';
+    statusText.textContent = 'Scanning & Generating UI...';
 
     // Send to active tab content script
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tab) {
         chrome.tabs.sendMessage(tab.id, {
-          action: 'EXECUTE_MORPH',
+          action: 'EXECUTE_DYNAMIC_MORPH',
           payload: { prompt }
         }, (response) => {
           statusArea.classList.add('hidden');

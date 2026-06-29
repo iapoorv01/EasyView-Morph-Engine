@@ -35,6 +35,13 @@
           console.error(err);
           sendResponse({ success: false, error: err.message });
         });
+    } else if (request.action === 'EXECUTE_DYNAMIC_MORPH') {
+      handleDynamicMorphExecution(request.payload.prompt)
+        .then(() => sendResponse({ success: true }))
+        .catch(err => {
+          console.error(err);
+          sendResponse({ success: false, error: err.message });
+        });
       return true;
     }
   });
@@ -56,6 +63,40 @@
     
     if (!success) {
       alert(`EasyView Morph Engine:\n\nFailed to apply morph. It might not be supported on this website.`);
+    }
+  }
+
+  // V2 Dynamic Morph Pipeline
+  async function handleDynamicMorphExecution(prompt) {
+    console.log(`[Morph Engine V2] Received prompt: "${prompt}"`);
+    
+    // 1. Scan DOM
+    const domMap = window.domScanner.scan();
+    console.log(`[Morph Engine V2] DOM Scanned. Sending to LLM via background worker...`);
+
+    // 2. Ask Background (LLM) for instructions
+    const instructions = await new Promise((resolve, reject) => {
+      chrome.runtime.sendMessage({
+        action: "morphRequest",
+        prompt: prompt,
+        domMap: domMap
+      }, response => {
+        if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+        else if (response && response.error) reject(new Error(response.error));
+        else resolve(response);
+      });
+    });
+
+    console.log(`[Morph Engine V2] Received schema from LLM:`, instructions);
+
+    // 3. Execute ShadowMorph
+    if (instructions.morphType === "shadow-replacement") {
+      const shadowMorph = new window.ShadowMorph(instructions);
+      await shadowMorph.apply();
+      // Register it in the engine so it can be reverted
+      window.morphEngine.activeMorphs.push(shadowMorph);
+    } else {
+      throw new Error(`Unsupported morphType: ${instructions.morphType}`);
     }
   }
 })();
