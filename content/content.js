@@ -48,7 +48,7 @@
 
   async function handleMorphExecution(prompt) {
     console.log(`[Morph Engine] Received prompt: "${prompt}"`);
-    
+
     // 1. Process Intent
     const intent = await window.intentProcessor.processPrompt(prompt);
     console.log(`[Morph Engine] Intent identified:`, intent);
@@ -60,7 +60,7 @@
 
     // 2. Execute Transformation
     const success = await window.morphEngine.executeMorph(intent.morphId, intent.parameters);
-    
+
     if (!success) {
       alert(`EasyView Morph Engine:\n\nFailed to apply morph. It might not be supported on this website.`);
     }
@@ -69,7 +69,7 @@
   // V2 Dynamic Morph Pipeline
   async function handleDynamicMorphExecution(prompt) {
     console.log(`[Morph Engine V2] Received prompt: "${prompt}"`);
-    
+
     // 1. Scan DOM
     const domMap = window.domScanner.scan();
     console.log(`[Morph Engine V2] DOM Scanned. Sending to LLM via background worker...`);
@@ -94,7 +94,8 @@
       const shadowMorph = new window.ShadowMorph(instructions);
       await shadowMorph.apply();
       // Register it in the engine so it can be reverted
-      window.morphEngine.activeMorphs.push(shadowMorph);
+      const morphId = `dynamic_morph_${Date.now()}`;
+      window.morphEngine.activeMorphs.set(morphId, shadowMorph);
     } else {
       throw new Error(`Unsupported morphType: ${instructions.morphType}`);
     }

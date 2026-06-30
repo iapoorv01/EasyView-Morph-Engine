@@ -6,6 +6,39 @@ document.addEventListener('DOMContentLoaded', () => {
   const statusText = document.querySelector('.status-content h4');
   const charCount = document.querySelector('.char-count');
 
+  // Settings Logic
+  const settingsBtn = document.querySelector('.settings-btn');
+  const mainView = document.getElementById('main-view');
+  const settingsView = document.getElementById('settings-view');
+  const apiKeyInput = document.getElementById('gemini-api-key');
+  const saveSettingsBtn = document.getElementById('save-settings-btn');
+  const settingsStatus = document.getElementById('settings-status');
+
+  if (settingsBtn && mainView && settingsView) {
+    settingsBtn.addEventListener('click', () => {
+      mainView.classList.toggle('hidden');
+      settingsView.classList.toggle('hidden');
+    });
+
+    // Load existing API key
+    chrome.storage.sync.get(['geminiApiKey'], (result) => {
+      if (result.geminiApiKey) {
+        apiKeyInput.value = result.geminiApiKey;
+      }
+    });
+
+    // Save API key
+    saveSettingsBtn.addEventListener('click', () => {
+      const key = apiKeyInput.value.trim();
+      chrome.storage.sync.set({ geminiApiKey: key }, () => {
+        settingsStatus.style.display = 'block';
+        setTimeout(() => {
+          settingsStatus.style.display = 'none';
+        }, 2500);
+      });
+    });
+  }
+
   if (charCount) {
     promptInput.addEventListener('input', () => {
       charCount.textContent = `${promptInput.value.length} / 500`;

@@ -29,65 +29,68 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 async function handleMorphRequest(prompt, domMap) {
   console.log("Received morph request.");
   console.log("Prompt:", prompt);
-  console.log("DOM Map Size:", JSON.stringify(domMap).length, "bytes");
 
-  // TODO: Replace this mock implementation with actual Gemini API fetch logic
-  // e.g., fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=YOUR_API_KEY', ...)
+  const { geminiApiKey } = await chrome.storage.sync.get(['geminiApiKey']);
 
-  // Simulating network delay for LLM processing
-  await new Promise(resolve => setTimeout(resolve, 1500));
+  if (!geminiApiKey) {
+    throw new Error('API Key missing. Please set your Gemini API Key in the extension options (Right click icon -> Options).');
+  }
 
-  // Returning a mocked strict JSON instruction set matching the V2 schema
-  return {
-    morphType: "shadow-replacement",
-    targetContainer: ".feed-shared-update-v2", // Example target
-    templateHTML: `
-      <div class='newspaper-layout'>
-        <div class='newspaper-header'>
-          <h3 id='author-name-id'>Author</h3>
-          <button id='like-btn-id'>Like</button>
-        </div>
-        <div id='post-content-id' class='newspaper-content'></div>
-      </div>
-    `,
-    templateCSS: `
-      .newspaper-layout {
-        font-family: 'Times New Roman', Times, serif;
-        border: 2px solid #333;
-        padding: 15px;
-        margin-bottom: 20px;
-        background-color: #f9f7f1;
-        color: #111;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-      }
-      .newspaper-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #333;
-        padding-bottom: 10px;
-        margin-bottom: 10px;
-      }
-      .newspaper-content {
-        line-height: 1.6;
-      }
-      #like-btn-id {
-        background: #333;
-        color: #fff;
-        border: none;
-        padding: 5px 10px;
-        cursor: pointer;
-      }
-      #like-btn-id:hover {
-        background: #555;
-      }
-    `,
-    dataBindings: {
-      "author-name-id": ".update-components-actor__name",
-      "post-content-id": ".update-components-text"
-    },
-    actionProxies: {
-      "like-btn-id": ".react-button__trigger"
+  const systemPrompt = `You are a UI morphing engine. You take a user's natural language prompt and a simplified DOM map of a website, and you return a strict JSON object that tells the ShadowMorph engine how to rebuild the UI.
+
+The JSON schema must EXACTLY match:
+{
+  "morphType": "shadow-replacement",
+  "targetContainer": "<css_selector_of_the_element_to_replace>",
+  "templateHTML": "<your_custom_html_here_with_ids>",
+  "templateCSS": "<your_custom_css_here>",
+  "dataBindings": {
+    "<new_id_in_templateHTML>": "<old_css_selector_in_original_container>"
+  },
+  "actionProxies": {
+    "<new_id_in_templateHTML>": "<old_css_selector_in_original_container>"
+  }
+}
+
+Important Rules:
+1. "targetContainer" must be a valid CSS selector found in the DOM map that represents the main container to morph.
+2. In "templateHTML", use standard HTML. Assign unique IDs to elements that need data or interactions.
+3. "dataBindings" maps the new IDs you created in "templateHTML" to the original CSS selectors inside the "targetContainer". The engine will copy innerHTML or src from the old selector to the new ID.
+4. "actionProxies" maps new button IDs to original button selectors so clicks are forwarded.
+5. Provide ONLY the JSON. No markdown formatting, no backticks.
+`;
+
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: systemPrompt },
+            { text: `User Prompt: ${prompt}` },
+            { text: `DOM Map:\n${JSON.stringify(domMap)}` }
+          ]
+        }]
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Failed to fetch from Gemini API');
     }
-  };
+
+    let responseText = data.candidates[0].content.parts[0].text;
+
+    // Clean up markdown block if present
+    responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+
+    const instructions = JSON.parse(responseText);
+    return instructions;
+
+  } catch (err) {
+    console.error("Morph Request Error:", err);
+    throw new Error(err.message || "The AI returned an invalid schema or encountered an error.");
+  }
 }
