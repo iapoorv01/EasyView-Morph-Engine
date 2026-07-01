@@ -36,9 +36,11 @@ async function handleMorphRequest(prompt, domMap) {
     throw new Error('API Key missing. Please set your Gemini API Key in the extension options (Right click icon -> Options).');
   }
 
-  const systemPrompt = `You are a UI morphing engine. You take a user's natural language prompt and a simplified DOM map of a website, and you return a strict JSON object that tells the ShadowMorph engine how to rebuild the UI.
+  const systemPrompt = `You are a UI morphing engine. You take a user's natural language prompt and a simplified DOM map of a website, and you return a strict JSON object that tells the engine how to rebuild or restyle the UI.
 
-The JSON schema must EXACTLY match:
+The JSON schema must EXACTLY match ONE of the following formats based on the best approach:
+
+Format 1 (For completely replacing or rebuilding UI components):
 {
   "morphType": "shadow-replacement",
   "targetContainer": "<css_selector_of_the_element_to_replace>",
@@ -52,12 +54,17 @@ The JSON schema must EXACTLY match:
   }
 }
 
+Format 2 (For global styling changes like dark/light mode, font changes, color changes, etc. without rebuilding the DOM):
+{
+  "morphType": "style-injection",
+  "templateCSS": "<css_string_to_inject_globally>"
+}
+
 Important Rules:
-1. "targetContainer" must be a valid CSS selector found in the DOM map that represents the main container to morph.
-2. In "templateHTML", use standard HTML. Assign unique IDs to elements that need data or interactions.
-3. "dataBindings" maps the new IDs you created in "templateHTML" to the original CSS selectors inside the "targetContainer". The engine will copy innerHTML or src from the old selector to the new ID.
-4. "actionProxies" maps new button IDs to original button selectors so clicks are forwarded.
-5. Provide ONLY the JSON. No markdown formatting, no backticks.
+1. If the user asks for a global style change (like "light theme" or "anime background"), ALWAYS use Format 2 ("style-injection"). DO NOT rebuild the page using shadow-replacement for simple styling.
+2. For Format 2 ("style-injection"): You have full creative control over the injected CSS. If the user wants a background image, use public image APIs. DO NOT use source.unsplash.com as it is permanently deprecated and returns 404 errors. Use valid alternatives like picsum.photos (e.g., https://picsum.photos/1920/1080). It is your responsibility to handle CSS specificity and override existing site styles (e.g., using \`!important\`, targeting \`html\` or \`body\`, and aggressively making wrappers transparent to ensure your background is visible).
+3. For Format 1 ("shadow-replacement"): "targetContainer" must be a valid CSS selector found in the DOM map. In "templateHTML", use standard HTML and assign unique IDs. "dataBindings" and "actionProxies" map the new IDs to the original selectors.
+4. Provide ONLY the JSON. No markdown formatting, no backticks.
 `;
 
   try {
@@ -67,9 +74,9 @@ Important Rules:
       body: JSON.stringify({
         contents: [{
           parts: [
+            { text: `Website DOM Map:\n${JSON.stringify(domMap)}` },
             { text: systemPrompt },
-            { text: `User Prompt: ${prompt}` },
-            { text: `DOM Map:\n${JSON.stringify(domMap)}` }
+            { text: `User Prompt: ${prompt}\n\nPlease generate the JSON response.` }
           ]
         }]
       })
@@ -77,20 +84,31 @@ Important Rules:
 
     const data = await response.json();
 
+    console.log("[Morph Engine Background] Raw Gemini API Response:", JSON.stringify(data, null, 2));
+
     if (!response.ok) {
       throw new Error(data.error?.message || 'Failed to fetch from Gemini API');
     }
 
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      console.error("[Morph Engine Background] Unexpected API response structure:", data);
+      throw new Error("Unexpected response structure from Gemini API");
+    }
+
     let responseText = data.candidates[0].content.parts[0].text;
+    console.log("[Morph Engine Background] Raw response text:", responseText);
 
     // Clean up markdown block if present
-    responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+    responseText = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+    console.log("[Morph Engine Background] Cleaned response text:", responseText);
 
     const instructions = JSON.parse(responseText);
+    console.log("[Morph Engine Background] Parsed JSON Instructions:", instructions);
+
     return instructions;
 
   } catch (err) {
-    console.error("Morph Request Error:", err);
+    console.error("[Morph Engine Background] Morph Request Error:", err);
     throw new Error(err.message || "The AI returned an invalid schema or encountered an error.");
   }
 }

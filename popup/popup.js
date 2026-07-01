@@ -93,19 +93,26 @@ document.addEventListener('DOMContentLoaded', () => {
           action: 'EXECUTE_DYNAMIC_MORPH',
           payload: { prompt }
         }, (response) => {
-          statusArea.classList.add('hidden');
           morphBtn.disabled = false;
           morphBtn.style.opacity = '1';
 
           if (chrome.runtime.lastError) {
             console.error('Error sending message:', chrome.runtime.lastError);
+            statusArea.classList.add('hidden');
             alert('Please refresh the page to use Morph Engine. Note: Extensions cannot run on Chrome Web Store or internal pages.');
             return;
           }
 
           if (response && response.success) {
-            promptInput.value = '';
-            window.close(); // Close popup on success
+            statusArea.classList.add('hidden');
+            // We'll leave the popup open for debugging
+            // window.close(); 
+          } else {
+            // Display error in the status area
+            statusText.textContent = `Error: ${response?.error || 'Failed to apply morph.'}`;
+            statusArea.classList.remove('hidden');
+            // Make it red
+            statusText.style.color = '#dc2626';
           }
         });
       }

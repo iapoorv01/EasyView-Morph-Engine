@@ -89,15 +89,42 @@
 
     console.log(`[Morph Engine V2] Received schema from LLM:`, instructions);
 
-    // 3. Execute ShadowMorph
-    if (instructions.morphType === "shadow-replacement") {
-      const shadowMorph = new window.ShadowMorph(instructions);
-      await shadowMorph.apply();
+    // Validate LLM Response Pipeline
+    if (!instructions || typeof instructions !== 'object') {
+      console.error("[Morph Engine V2] Validation Failed: LLM response is not a valid object", instructions);
+      throw new Error("Invalid AI response format.");
+    }
+
+    if (instructions.morphType !== "shadow-replacement" && instructions.morphType !== "style-injection") {
+      console.error("[Morph Engine V2] Validation Failed: Unsupported morphType", instructions.morphType);
+      throw new Error(`Unsupported morphType: ${instructions.morphType}`);
+    }
+
+    try {
+      let activeMorph;
+      
+      // 3. Execute Morph
+      if (instructions.morphType === "shadow-replacement") {
+        activeMorph = new window.ShadowMorph(instructions);
+      } else if (instructions.morphType === "style-injection") {
+        activeMorph = new window.StyleMorph(instructions);
+      }
+      
+      await activeMorph.apply();
+      
       // Register it in the engine so it can be reverted
       const morphId = `dynamic_morph_${Date.now()}`;
-      window.morphEngine.activeMorphs.set(morphId, shadowMorph);
-    } else {
-      throw new Error(`Unsupported morphType: ${instructions.morphType}`);
+      
+      if (!window.morphEngine || !window.morphEngine.activeMorphs) {
+         console.error("[Morph Engine V2] window.morphEngine.activeMorphs is undefined. Engine state might be corrupted.");
+         throw new Error("Engine state corrupted. Please refresh the page.");
+      }
+      
+      window.morphEngine.activeMorphs.set(morphId, activeMorph);
+      console.log(`[Morph Engine V2] Morph ${morphId} registered successfully.`);
+    } catch (error) {
+      console.error("[Morph Engine V2] Runtime error during morph application:", error);
+      throw error;
     }
   }
 })();
