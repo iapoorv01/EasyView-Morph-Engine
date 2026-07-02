@@ -36,7 +36,7 @@ async function handleMorphRequest(prompt, domMap) {
     throw new Error('API Key missing. Please set your Gemini API Key in the extension options (Right click icon -> Options).');
   }
 
-  const systemPrompt = `You are a UI morphing engine. You take a user's natural language prompt and a simplified DOM map of a website, and you return a strict JSON object that tells the engine how to rebuild or restyle the UI.
+  const systemPrompt = `You are a UI morphing engine. You take a user's natural language prompt and a simplified DOM map of a website, and you return a strict JSON object that tells the engine how to rebuild, restyle, or orchestrate the UI dynamically.
 
 The JSON schema must EXACTLY match ONE of the following formats based on the best approach:
 
@@ -60,11 +60,27 @@ Format 2 (For global styling changes like dark/light mode, font changes, color c
   "templateCSS": "<css_string_to_inject_globally>"
 }
 
+Format 3 (For arbitrary dynamic functionality, like adding sounds, particles, fetching external media, or injecting custom DOM elements sequentially):
+{
+  "morphType": "dynamic-action",
+  "actions": [
+    { "command": "createElement", "tag": "audio", "id": "my-audio", "attributes": { "src": "<url>", "autoplay": "true", "loop": "true" } },
+    { "command": "appendChild", "parentId": "body", "targetId": "my-audio" },
+    { "command": "setStyle", "targetSelector": "body", "styles": { "overflow": "hidden" } }
+  ]
+}
+Supported commands for Format 3:
+- "createElement" (requires "tag", optional "id", "attributes" object, "styles" object, "innerHTML")
+- "appendChild" (requires "parentId" like "body" or a selector, and "targetId" referring to a created element ID, or "targetSelector")
+- "setStyle" (requires "targetId" or "targetSelector", and "styles" object)
+- "removeElement" (requires "targetSelector")
+
 Important Rules:
-1. If the user asks for a global style change (like "light theme" or "anime background"), ALWAYS use Format 2 ("style-injection"). DO NOT rebuild the page using shadow-replacement for simple styling.
-2. For Format 2 ("style-injection"): You have full creative control over the injected CSS. If the user wants a background image, use public image APIs. DO NOT use source.unsplash.com as it is permanently deprecated and returns 404 errors. Use valid alternatives like picsum.photos (e.g., https://picsum.photos/1920/1080). It is your responsibility to handle CSS specificity and override existing site styles (e.g., using \`!important\`, targeting \`html\` or \`body\`, and aggressively making wrappers transparent to ensure your background is visible).
-3. For Format 1 ("shadow-replacement"): "targetContainer" must be a valid CSS selector found in the DOM map. In "templateHTML", use standard HTML and assign unique IDs. "dataBindings" and "actionProxies" map the new IDs to the original selectors.
-4. Provide ONLY the JSON. No markdown formatting, no backticks.
+1. If the user asks for a global style change (like "light theme" or "anime background"), use Format 2 ("style-injection"). DO NOT rebuild the page using shadow-replacement for simple styling.
+2. If the user asks for dynamic functionality (like SOUNDS, video injection, sequential DOM building, interactive widgets), ALWAYS use Format 3 ("dynamic-action"). Remember, Format 2 (CSS) CANNOT play sounds.
+3. For Format 2 ("style-injection"): You have full creative control over the injected CSS. If the user wants a background image, use public image APIs. DO NOT use source.unsplash.com as it is permanently deprecated and returns 404 errors. Use valid alternatives like picsum.photos (e.g., https://picsum.photos/1920/1080). It is your responsibility to handle CSS specificity and override existing site styles (e.g., using \`!important\`, targeting \`html\` or \`body\`, and aggressively making wrappers transparent to ensure your background is visible).
+4. For Format 1 ("shadow-replacement"): "targetContainer" must be a valid CSS selector found in the DOM map. In "templateHTML", use standard HTML and assign unique IDs. "dataBindings" and "actionProxies" map the new IDs to the original selectors.
+5. Provide ONLY the JSON. No markdown formatting, no backticks.
 `;
 
   try {

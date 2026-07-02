@@ -95,7 +95,7 @@
       throw new Error("Invalid AI response format.");
     }
 
-    if (instructions.morphType !== "shadow-replacement" && instructions.morphType !== "style-injection") {
+    if (instructions.morphType !== "shadow-replacement" && instructions.morphType !== "style-injection" && instructions.morphType !== "dynamic-action") {
       console.error("[Morph Engine V2] Validation Failed: Unsupported morphType", instructions.morphType);
       throw new Error(`Unsupported morphType: ${instructions.morphType}`);
     }
@@ -108,6 +108,8 @@
         activeMorph = new window.ShadowMorph(instructions);
       } else if (instructions.morphType === "style-injection") {
         activeMorph = new window.StyleMorph(instructions);
+      } else if (instructions.morphType === "dynamic-action") {
+        activeMorph = new window.DynamicMorph(instructions);
       }
       
       await activeMorph.apply();

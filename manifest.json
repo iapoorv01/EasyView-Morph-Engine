@@ -28,6 +28,7 @@
         "content/morphs/base-morph.js",
         "content/morphs/shadow-morph.js",
         "content/morphs/style-morph.js",
+        "content/morphs/dynamic-morph.js",
         "content/morphs/youtube-shorts.js",
         "content/morphs/study-mode.js",
         "content/morphs/senior-mode.js",
