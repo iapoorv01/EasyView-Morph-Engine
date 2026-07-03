@@ -18,7 +18,7 @@ window.DynamicMorph = class DynamicMorph extends window.BaseMorph {
         console.error(`[DynamicMorph] Failed to execute action:`, action, err);
       }
     }
-    
+
     console.log(`[DynamicMorph] Successfully applied dynamic actions.`);
   }
 
@@ -31,17 +31,39 @@ window.DynamicMorph = class DynamicMorph extends window.BaseMorph {
         }
         if (action.attributes) {
           for (const [key, value] of Object.entries(action.attributes)) {
-            el.setAttribute(key, value);
+            // Handle specific DOM properties that are not just HTML attributes
+            if (key === 'volume') {
+              el.volume = parseFloat(value);
+            } else if (key === 'autoplay' && (value === 'true' || value === true)) {
+              el.autoplay = true;
+            } else {
+              el.setAttribute(key, value);
+            }
           }
         }
         if (action.styles) {
-          for (const [key, value] of Object.entries(action.styles)) {
-            el.style[key] = value;
+          for (let [key, value] of Object.entries(action.styles)) {
+            let priority = '';
+            if (typeof value === 'string' && value.includes('!important')) {
+              priority = 'important';
+              value = value.replace('!important', '').trim();
+            }
+            const kebabKey = key.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`);
+            el.style.setProperty(kebabKey, value, priority);
           }
         }
         if (action.innerHTML) {
           el.innerHTML = action.innerHTML;
         }
+
+        // If it's media with autoplay, force play() to handle dynamic injection
+        if ((action.tag === 'audio' || action.tag === 'video') && el.autoplay) {
+          // Play needs to happen after it's in the DOM, so wait for next tick
+          setTimeout(() => {
+            el.play().catch(e => console.warn('[DynamicMorph] Autoplay blocked by browser:', e));
+          }, 100);
+        }
+
         // Store reference for revert
         if (action.id) {
           this.createdElements.set(action.id, el);
@@ -52,9 +74,9 @@ window.DynamicMorph = class DynamicMorph extends window.BaseMorph {
       case 'appendChild': {
         const parent = action.parentId === 'body' ? document.body : (action.parentId === 'head' ? document.head : document.querySelector(action.parentId));
         let child = this.createdElements.get(action.targetId);
-        
+
         if (!child && action.targetSelector) {
-           child = document.querySelector(action.targetSelector);
+          child = document.querySelector(action.targetSelector);
         }
 
         if (parent && child) {
@@ -66,20 +88,36 @@ window.DynamicMorph = class DynamicMorph extends window.BaseMorph {
       }
 
       case 'setStyle': {
-        const target = action.targetId ? this.createdElements.get(action.targetId) : document.querySelector(action.targetSelector);
-        if (target && action.styles) {
-          // Backup original styles before overwriting
-          if (!this.originalStyles.has(target)) {
-            this.originalStyles.set(target, target.getAttribute('style') || '');
-          }
-          
-          for (const [key, value] of Object.entries(action.styles)) {
-            target.style[key] = value;
-          }
+        let targets = [];
+        if (action.targetId) {
+          const el = this.createdElements.get(action.targetId);
+          if (el) targets.push(el);
+        } else if (action.targetSelector) {
+          targets = Array.from(document.querySelectorAll(action.targetSelector));
+        }
+
+        if (targets.length > 0) {
+          targets.forEach(target => {
+            // Backup original styles before overwriting
+            if (!this.originalStyles.has(target)) {
+              this.originalStyles.set(target, target.getAttribute('style') || '');
+            }
+
+            for (let [key, value] of Object.entries(action.styles)) {
+              let priority = '';
+              if (typeof value === 'string' && value.includes('!important')) {
+                priority = 'important';
+                value = value.replace('!important', '').trim();
+              }
+              // Convert camelCase to kebab-case (e.g., backgroundImage -> background-image)
+              const kebabKey = key.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`);
+              target.style.setProperty(kebabKey, value, priority);
+            }
+          });
         }
         break;
       }
-      
+
       case 'removeElement': {
         const target = document.querySelector(action.targetSelector);
         if (target) {
@@ -111,7 +149,7 @@ window.DynamicMorph = class DynamicMorph extends window.BaseMorph {
       }
     }
     this.originalStyles.clear();
-    
+
     console.log(`[DynamicMorph] Revert complete.`);
   }
 };

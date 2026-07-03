@@ -76,11 +76,12 @@ Supported commands for Format 3:
 - "removeElement" (requires "targetSelector")
 
 Important Rules:
-1. If the user asks for a global style change (like "light theme" or "anime background"), use Format 2 ("style-injection"). DO NOT rebuild the page using shadow-replacement for simple styling.
-2. If the user asks for dynamic functionality (like SOUNDS, video injection, sequential DOM building, interactive widgets), ALWAYS use Format 3 ("dynamic-action"). Remember, Format 2 (CSS) CANNOT play sounds.
-3. For Format 2 ("style-injection"): You have full creative control over the injected CSS. If the user wants a background image, use public image APIs. DO NOT use source.unsplash.com as it is permanently deprecated and returns 404 errors. Use valid alternatives like picsum.photos (e.g., https://picsum.photos/1920/1080). It is your responsibility to handle CSS specificity and override existing site styles (e.g., using \`!important\`, targeting \`html\` or \`body\`, and aggressively making wrappers transparent to ensure your background is visible).
-4. For Format 1 ("shadow-replacement"): "targetContainer" must be a valid CSS selector found in the DOM map. In "templateHTML", use standard HTML and assign unique IDs. "dataBindings" and "actionProxies" map the new IDs to the original selectors.
-5. Provide ONLY the JSON. No markdown formatting, no backticks.
+1. If the user asks for ONLY a global style change (like "light theme" or "anime background"), use Format 2 ("style-injection"). DO NOT rebuild the page using shadow-replacement for simple styling.
+2. If the user asks for dynamic functionality (like SOUNDS, video injection, sequential DOM building) OR a combination of styles and dynamic functionality, ALWAYS use Format 3 ("dynamic-action"). Format 3's array of actions allows you to combine multiple setStyle and createElement commands in one go.
+3. For Format 2 AND Format 3 styling: You have full creative control over the injected CSS. For background images, you MUST use https://picsum.photos (e.g., https://picsum.photos/seed/anime/1920/1080). DO NOT use source.unsplash.com (returns 404) and DO NOT hallucinate Wikimedia image URLs. ALWAYS append !important to EVERY style value you generate (e.g., "transparent !important", "cover !important") to guarantee it overrides the page's default CSS. Aggressively make wrappers transparent to ensure your background is visible.
+4. For Audio/Video: Always use reliable, true CORS-friendly public URLs. For audio, ALWAYS use .mp3 or .wav formats to avoid browser codec errors (do not use .ogg). DO NOT use 'file-examples.com', 'pixabay.com', or 'mixkit.co' as they strictly block cross-origin hotlinking (returning 403/CORS errors). Use valid sound files.
+5. For Format 1 ("shadow-replacement"): "targetContainer" must be a valid CSS selector found in the DOM map. In "templateHTML", use standard HTML and assign unique IDs. "dataBindings" and "actionProxies" map the new IDs to the original selectors.
+6. Provide ONLY the JSON. No markdown formatting, no backticks.
 `;
 
   try {
@@ -94,7 +95,10 @@ Important Rules:
             { text: systemPrompt },
             { text: `User Prompt: ${prompt}\n\nPlease generate the JSON response.` }
           ]
-        }]
+        }],
+        generationConfig: {
+          responseMimeType: "application/json"
+        }
       })
     });
 
