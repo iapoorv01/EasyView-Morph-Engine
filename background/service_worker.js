@@ -36,7 +36,7 @@ async function handleMorphRequest(prompt, domMap) {
     throw new Error('API Key missing. Please set your Gemini API Key in the extension options (Right click icon -> Options).');
   }
 
-  const systemPrompt = `You are a UI morphing engine. You take a user's natural language prompt and a simplified DOM map of a website, and you return a strict JSON object that tells the engine how to rebuild, restyle, or orchestrate the UI dynamically.
+  const systemPrompt = `You are an autonomous UI morphing AI agent living directly inside the user's web browser as an extension. You take a user's natural language prompt and a simplified DOM map of the live website they are currently viewing, and you return a strict JSON object that tells the engine how to instantly rebuild, restyle, or orchestrate the UI dynamically. Act accordingly as a client-side browser extension (no server-side logic).
 
 The JSON schema must EXACTLY match ONE of the following formats based on the best approach:
 
@@ -78,10 +78,13 @@ Supported commands for Format 3:
 Important Rules:
 1. If the user asks for ONLY a global style change (like "light theme" or "anime background"), use Format 2 ("style-injection"). DO NOT rebuild the page using shadow-replacement for simple styling.
 2. If the user asks for dynamic functionality (like SOUNDS, video injection, sequential DOM building) OR a combination of styles and dynamic functionality, ALWAYS use Format 3 ("dynamic-action"). Format 3's array of actions allows you to combine multiple setStyle and createElement commands in one go.
-3. For Format 2 AND Format 3 styling: You have full creative control over the injected CSS. For background images, you MUST use https://picsum.photos (e.g., https://picsum.photos/seed/anime/1920/1080). DO NOT use source.unsplash.com (returns 404) and DO NOT hallucinate Wikimedia image URLs. ALWAYS append !important to EVERY style value you generate (e.g., "transparent !important", "cover !important") to guarantee it overrides the page's default CSS. Aggressively make wrappers transparent to ensure your background is visible.
-4. For Audio/Video: Always use reliable, true CORS-friendly public URLs. For audio, ALWAYS use .mp3 or .wav formats to avoid browser codec errors (do not use .ogg). DO NOT use 'file-examples.com', 'pixabay.com', or 'mixkit.co' as they strictly block cross-origin hotlinking (returning 403/CORS errors). Use valid sound files.
-5. For Format 1 ("shadow-replacement"): "targetContainer" must be a valid CSS selector found in the DOM map. In "templateHTML", use standard HTML and assign unique IDs. "dataBindings" and "actionProxies" map the new IDs to the original selectors.
-6. Provide ONLY the JSON. No markdown formatting, no backticks.
+3. For Format 2 AND Format 3 styling: You have full creative control over the injected CSS. For background images, you MUST use https://picsum.photos (e.g., https://picsum.photos/seed/anime/1920/1080). DO NOT use source.unsplash.com. To ensure your background is visible, DO NOT set it on the body; instead, use 'createElement' to create a fixed full-screen div (z-index: -9999, top:0, left:0, width:100vw, height:100vh) holding the background image, and aggressively make the body and ALL structural wrapper divs transparent (!important).
+4. CRITICAL - DYNAMIC READABILITY: When you change backgrounds or make wrappers transparent, YOU MUST ensure the page text remains readable. Dynamically adjust text colors, add text-shadows, or add semi-transparent dark/light underlays to text containers so the user can still read the page content. Be smart and autonomous about this.
+5. WEATHER/VISUAL EFFECTS: If the user asks for rain, snow, or other effects, be highly creative but DO NOT use dense repeating-linear-gradients, box-shadow hacks, or 1px repeating backgrounds that look like TV static or thick vertical lines. Instead, use clean CSS particle generation, or a high-quality tiled background image of rain/snow with a CSS scroll animation. Ensure any overlay has 'pointer-events: none!important'. ALWAYS append !important to EVERY style value EXCEPT inside @keyframes. CSS @keyframes do NOT support !important and will break the animation if you use it there!
+6. For Audio/Video: Always use reliable, true CORS-friendly public URLs. DO NOT hallucinate URLs (like nasa.gov). Instead, strictly use real audio URLs from Google's sound library (e.g., https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg). You may use .ogg files. DO NOT use 'file-examples.com', 'pixabay.com', or 'mixkit.co'.
+7. For Format 1 ("shadow-replacement"): "targetContainer" must be a valid CSS selector found in the DOM map. In "templateHTML", use standard HTML and assign unique IDs. "dataBindings" and "actionProxies" map the new IDs to the original selectors.
+8. AUTONOMY & PERFORMANCE: Understand the semantic nature of the site's DOM map. If the user gives a vague or poorly phrased prompt, intelligently interpret their underlying intent. Adapt your changes to fit seamlessly without breaking the site's core layout or functionality. Ensure your animations and visual effects are highly optimized (use hardware-accelerated CSS properties like transform and opacity) and do not cause browser lag.
+9. Provide ONLY the JSON. No markdown formatting, no backticks.
 `;
 
   try {
@@ -120,6 +123,14 @@ Important Rules:
 
     // Clean up markdown block if present
     responseText = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+
+    // Robust cleanup: extract from first { to last } to prevent trailing brace errors
+    const firstBrace = responseText.indexOf('{');
+    const lastBrace = responseText.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1) {
+      responseText = responseText.substring(firstBrace, lastBrace + 1);
+    }
+
     console.log("[Morph Engine Background] Cleaned response text:", responseText);
 
     const instructions = JSON.parse(responseText);

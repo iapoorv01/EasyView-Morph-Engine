@@ -29,6 +29,13 @@ window.DynamicMorph = class DynamicMorph extends window.BaseMorph {
         if (action.id) {
           el.id = action.id;
         }
+        if (action.classes) {
+          el.className = action.classes;
+        } else if (action.className) {
+          el.className = action.className;
+        } else if (action.class) {
+          el.className = action.class;
+        }
         if (action.attributes) {
           for (const [key, value] of Object.entries(action.attributes)) {
             // Handle specific DOM properties that are not just HTML attributes
