@@ -4,12 +4,21 @@ window.DynamicMorph = class DynamicMorph extends window.BaseMorph {
   constructor(parameters = {}) {
     super(parameters);
     this.actions = parameters.actions || [];
+    this.templateCSS = parameters.templateCSS || null;
     this.createdElements = new Map(); // Track created elements for easy cleanup
     this.originalStyles = new Map(); // Track style changes for revert
+    this.styleElement = null;
   }
 
   async apply() {
     console.log(`[DynamicMorph] Executing ${this.actions.length} dynamic actions.`);
+
+    if (this.templateCSS) {
+      this.styleElement = document.createElement('style');
+      this.styleElement.id = `dynamic-morph-css-${Date.now()}`;
+      this.styleElement.textContent = this.templateCSS;
+      document.head.appendChild(this.styleElement);
+    }
 
     for (const action of this.actions) {
       try {
@@ -79,7 +88,20 @@ window.DynamicMorph = class DynamicMorph extends window.BaseMorph {
       }
 
       case 'appendChild': {
-        const parent = action.parentId === 'body' ? document.body : (action.parentId === 'head' ? document.head : document.querySelector(action.parentId));
+        let parent;
+        if (action.parentId === 'body') {
+          parent = document.body;
+        } else if (action.parentId === 'head') {
+          parent = document.head;
+        } else {
+          parent = this.createdElements.get(action.parentId);
+          if (!parent) {
+            try {
+              parent = document.querySelector(action.parentId) || document.querySelector(`#${action.parentId}`);
+            } catch (e) { }
+          }
+        }
+
         let child = this.createdElements.get(action.targetId);
 
         if (!child && action.targetSelector) {
@@ -140,6 +162,11 @@ window.DynamicMorph = class DynamicMorph extends window.BaseMorph {
 
   async revert() {
     console.log(`[DynamicMorph] Reverting dynamic actions.`);
+
+    if (this.styleElement && this.styleElement.parentNode) {
+      this.styleElement.parentNode.removeChild(this.styleElement);
+      this.styleElement = null;
+    }
 
     // 1. Remove all dynamically created elements
     for (const [id, el] of this.createdElements.entries()) {
