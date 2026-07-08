@@ -76,7 +76,16 @@ window.DynamicMorph = class DynamicMorph extends window.BaseMorph {
         if ((action.tag === 'audio' || action.tag === 'video') && el.autoplay) {
           // Play needs to happen after it's in the DOM, so wait for next tick
           setTimeout(() => {
-            el.play().catch(e => console.warn('[DynamicMorph] Autoplay blocked by browser:', e));
+            el.play().catch(e => {
+              console.warn('[DynamicMorph] Autoplay blocked. Waiting for user interaction...', e);
+              const playOnInteract = () => {
+                el.play().catch(err => console.error("Playback still blocked:", err));
+                document.removeEventListener('click', playOnInteract);
+                document.removeEventListener('keydown', playOnInteract);
+              };
+              document.addEventListener('click', playOnInteract);
+              document.addEventListener('keydown', playOnInteract);
+            });
           }, 100);
         }
 
@@ -132,15 +141,17 @@ window.DynamicMorph = class DynamicMorph extends window.BaseMorph {
               this.originalStyles.set(target, target.getAttribute('style') || '');
             }
 
-            for (let [key, value] of Object.entries(action.styles)) {
-              let priority = '';
-              if (typeof value === 'string' && value.includes('!important')) {
-                priority = 'important';
-                value = value.replace('!important', '').trim();
+            if (action.styles) {
+              for (let [key, value] of Object.entries(action.styles)) {
+                let priority = '';
+                if (typeof value === 'string' && value.includes('!important')) {
+                  priority = 'important';
+                  value = value.replace('!important', '').trim();
+                }
+                // Convert camelCase to kebab-case (e.g., backgroundImage -> background-image)
+                const kebabKey = key.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`);
+                target.style.setProperty(kebabKey, value, priority);
               }
-              // Convert camelCase to kebab-case (e.g., backgroundImage -> background-image)
-              const kebabKey = key.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`);
-              target.style.setProperty(kebabKey, value, priority);
             }
           });
         }

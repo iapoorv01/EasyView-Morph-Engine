@@ -18,6 +18,54 @@
   // Dispatch event so morphs can register themselves
   document.dispatchEvent(new Event('MorphEngineReady'));
 
+  // Auto-apply saved morphs
+  const applySavedMorph = () => {
+    chrome.storage.local.get(['savedMorphs'], async (result) => {
+      const savedMorphs = result.savedMorphs || {};
+      const hostname = window.location.hostname;
+      const instructions = savedMorphs[hostname];
+      if (instructions) {
+        console.log(`[Morph Engine V2] Found saved morph for ${hostname}, applying...`);
+        try {
+          let activeMorph;
+          if (instructions.morphType === "shadow-replacement") {
+            activeMorph = new window.ShadowMorph(instructions);
+          } else if (instructions.morphType === "style-injection") {
+            activeMorph = new window.StyleMorph(instructions);
+          } else if (instructions.morphType === "dynamic-action") {
+            activeMorph = new window.DynamicMorph(instructions);
+          }
+          if (activeMorph) {
+            await activeMorph.apply();
+            const morphId = `dynamic_morph_${Date.now()}`;
+            window.morphEngine.activeMorphs.set(morphId, activeMorph);
+            console.log(`[Morph Engine V2] Saved morph applied and registered.`);
+          }
+        } catch (error) {
+          console.error("[Morph Engine V2] Failed to apply saved morph:", error);
+        }
+      }
+    });
+  };
+
+  applySavedMorph();
+
+  // SPA Navigation detection (watch for URL changes)
+  let lastUrl = window.location.href;
+  setInterval(() => {
+    if (window.location.href !== lastUrl) {
+      console.log(`[Morph Engine V2] URL changed from ${lastUrl} to ${window.location.href}`);
+      lastUrl = window.location.href;
+
+      // Delay to let the SPA render the new page content before morphing
+      setTimeout(() => {
+        window.morphEngine.resetAll().then(() => {
+          applySavedMorph();
+        });
+      }, 800);
+    }
+  }, 500);
+
   // Listen for messages from the popup
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'EXECUTE_MORPH') {
@@ -30,7 +78,17 @@
       return true; // Keep message channel open for async response
     } else if (request.action === 'RESET_PAGE') {
       window.morphEngine.resetAll()
-        .then(() => sendResponse({ success: true }))
+        .then(() => {
+          const hostname = window.location.hostname;
+          chrome.storage.local.get(['savedMorphs'], (result) => {
+            const savedMorphs = result.savedMorphs || {};
+            if (savedMorphs[hostname]) {
+              delete savedMorphs[hostname];
+              chrome.storage.local.set({ savedMorphs });
+            }
+          });
+          sendResponse({ success: true });
+        })
         .catch(err => {
           console.error(err);
           sendResponse({ success: false, error: err.message });
@@ -102,7 +160,7 @@
 
     try {
       let activeMorph;
-      
+
       // 3. Execute Morph
       if (instructions.morphType === "shadow-replacement") {
         activeMorph = new window.ShadowMorph(instructions);
@@ -111,19 +169,27 @@
       } else if (instructions.morphType === "dynamic-action") {
         activeMorph = new window.DynamicMorph(instructions);
       }
-      
+
       await activeMorph.apply();
-      
+
       // Register it in the engine so it can be reverted
       const morphId = `dynamic_morph_${Date.now()}`;
-      
+
       if (!window.morphEngine || !window.morphEngine.activeMorphs) {
-         console.error("[Morph Engine V2] window.morphEngine.activeMorphs is undefined. Engine state might be corrupted.");
-         throw new Error("Engine state corrupted. Please refresh the page.");
+        console.error("[Morph Engine V2] window.morphEngine.activeMorphs is undefined. Engine state might be corrupted.");
+        throw new Error("Engine state corrupted. Please refresh the page.");
       }
-      
+
       window.morphEngine.activeMorphs.set(morphId, activeMorph);
       console.log(`[Morph Engine V2] Morph ${morphId} registered successfully.`);
+
+      // Save morph instructions for this hostname
+      const hostname = window.location.hostname;
+      chrome.storage.local.get(['savedMorphs'], (result) => {
+        const savedMorphs = result.savedMorphs || {};
+        savedMorphs[hostname] = instructions;
+        chrome.storage.local.set({ savedMorphs });
+      });
     } catch (error) {
       console.error("[Morph Engine V2] Runtime error during morph application:", error);
       throw error;
