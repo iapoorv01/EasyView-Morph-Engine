@@ -1,10 +1,11 @@
 // content/morphs/style-morph.js
 
+// content/morphs/style-morph.js
+
 window.StyleMorph = class StyleMorph extends window.BaseMorph {
   constructor(parameters = {}) {
     super(parameters);
     this.templateCSS = parameters.templateCSS;
-    this.styleElement = null;
   }
 
   async apply() {
@@ -13,10 +14,7 @@ window.StyleMorph = class StyleMorph extends window.BaseMorph {
       return false;
     }
 
-    this.styleElement = document.createElement('style');
-    this.styleElement.className = 'easyview-style-morph';
-    this.styleElement.textContent = this.templateCSS;
-    document.head.appendChild(this.styleElement);
+    this.injectCSS(this.templateCSS);
 
     console.log("[Morph Engine V2] StyleMorph applied successfully!");
     console.log("[Morph Engine V2] Injected CSS:\n", this.templateCSS);
@@ -24,11 +22,7 @@ window.StyleMorph = class StyleMorph extends window.BaseMorph {
   }
 
   async revert() {
-    if (this.styleElement && this.styleElement.parentNode) {
-      this.styleElement.parentNode.removeChild(this.styleElement);
-      this.styleElement = null;
-    }
-    
+    this.clearInjectedCSS();
     console.log("[Morph Engine V2] StyleMorph reverted.");
     return true;
   }
