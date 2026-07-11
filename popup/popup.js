@@ -6,6 +6,51 @@ document.addEventListener('DOMContentLoaded', () => {
   const statusText = document.querySelector('.status-content h4');
   const charCount = document.querySelector('.char-count');
 
+  const activeMorphHint = document.getElementById('active-morph-hint');
+  const recentPromptsSection = document.getElementById('recent-prompts-section');
+  const recentPromptsList = document.getElementById('recent-prompts-list');
+
+  // Load state
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (tabs && tabs[0]) {
+      try {
+        const url = new URL(tabs[0].url);
+        const hostname = url.hostname;
+        
+        chrome.storage.local.get(['savedMorphs', 'recentPrompts'], (result) => {
+          // Check for active morph on this site
+          const savedMorphs = result.savedMorphs || {};
+          if (savedMorphs[hostname] && activeMorphHint) {
+            activeMorphHint.classList.remove('hidden');
+          }
+
+          // Check for recent prompts
+          const recentPrompts = result.recentPrompts || [];
+          if (recentPrompts.length > 0 && recentPromptsSection && recentPromptsList) {
+            recentPromptsSection.classList.remove('hidden');
+            recentPromptsList.innerHTML = '';
+            recentPrompts.forEach(p => {
+              const el = document.createElement('div');
+              el.style.cssText = 'padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 11px; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;';
+              // Escape user prompt to avoid XSS (basic)
+              const safeP = p.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+              el.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;">${safeP}</span>`;
+              el.addEventListener('mouseover', () => el.style.background = '#f1f5f9');
+              el.addEventListener('mouseout', () => el.style.background = '#f8fafc');
+              el.addEventListener('click', () => {
+                promptInput.value = p;
+                promptInput.focus();
+              });
+              recentPromptsList.appendChild(el);
+            });
+          }
+        });
+      } catch (e) {
+        // Invalid URL for extension (e.g., chrome://)
+      }
+    }
+  });
+
   // Settings Logic
   const settingsBtn = document.querySelector('.settings-btn');
   const mainView = document.getElementById('main-view');
@@ -105,6 +150,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
           if (response && response.success) {
             statusArea.classList.add('hidden');
+            
+            // Save prompt to history
+            chrome.storage.local.get(['recentPrompts'], (res) => {
+              let rp = res.recentPrompts || [];
+              rp = rp.filter(p => p !== prompt); // remove duplicates
+              rp.unshift(prompt);
+              if (rp.length > 3) rp.pop(); // keep top 3
+              chrome.storage.local.set({ recentPrompts: rp });
+              
+              if (activeMorphHint) {
+                activeMorphHint.classList.remove('hidden');
+              }
+            });
             // We'll leave the popup open for debugging
             // window.close(); 
           } else {
