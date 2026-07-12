@@ -27,7 +27,7 @@ window.MorphDOMScanner = class MorphDOMScanner {
     // Only process Element nodes and Text nodes with actual content
     if (node.nodeType === Node.TEXT_NODE) {
       const text = node.textContent.trim();
-      return text ? { type: 'text', content: text.substring(0, 100) } : null;
+      return text ? { type: 'text', content: text } : null;
     }
 
     if (node.nodeType !== Node.ELEMENT_NODE) return null;
