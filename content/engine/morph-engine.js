@@ -10,6 +10,14 @@ window.MorphEngine = class MorphEngine {
   constructor() {
     this.activeMorphs = new Map();
     this.availableMorphs = new Map();
+    this.globalOriginalStyles = new WeakMap();
+  }
+
+  getOriginalStyle(el) {
+    if (this.globalOriginalStyles.has(el)) return this.globalOriginalStyles.get(el);
+    const style = el.getAttribute('style') || '';
+    this.globalOriginalStyles.set(el, style);
+    return style;
   }
 
   registerMorph(morphId, morphClass) {
@@ -30,7 +38,7 @@ window.MorphEngine = class MorphEngine {
 
     const MorphClass = this.availableMorphs.get(morphId);
     const morphInstance = new MorphClass(parameters);
-    
+
     try {
       const success = await morphInstance.apply();
       if (success) {

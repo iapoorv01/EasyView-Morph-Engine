@@ -10,6 +10,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const recentPromptsSection = document.getElementById('recent-prompts-section');
   const recentPromptsList = document.getElementById('recent-prompts-list');
 
+  const renderRecentPrompts = (recentPrompts) => {
+    if (recentPrompts.length > 0 && recentPromptsSection && recentPromptsList) {
+      recentPromptsSection.classList.remove('hidden');
+      recentPromptsList.innerHTML = '';
+      recentPrompts.forEach(p => {
+        const el = document.createElement('div');
+        el.style.cssText = 'padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 11px; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;';
+        // Escape user prompt to avoid XSS (basic)
+        const safeP = p.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        el.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;">${safeP}</span>`;
+        el.addEventListener('mouseover', () => el.style.background = '#f1f5f9');
+        el.addEventListener('mouseout', () => el.style.background = '#f8fafc');
+        el.addEventListener('click', () => {
+          promptInput.value = p;
+          promptInput.focus();
+        });
+        recentPromptsList.appendChild(el);
+      });
+    }
+  };
+
   // Load state
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs && tabs[0]) {
@@ -26,24 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           // Check for recent prompts
           const recentPrompts = result.recentPrompts || [];
-          if (recentPrompts.length > 0 && recentPromptsSection && recentPromptsList) {
-            recentPromptsSection.classList.remove('hidden');
-            recentPromptsList.innerHTML = '';
-            recentPrompts.forEach(p => {
-              const el = document.createElement('div');
-              el.style.cssText = 'padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 11px; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;';
-              // Escape user prompt to avoid XSS (basic)
-              const safeP = p.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-              el.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;">${safeP}</span>`;
-              el.addEventListener('mouseover', () => el.style.background = '#f1f5f9');
-              el.addEventListener('mouseout', () => el.style.background = '#f8fafc');
-              el.addEventListener('click', () => {
-                promptInput.value = p;
-                promptInput.focus();
-              });
-              recentPromptsList.appendChild(el);
-            });
-          }
+          renderRecentPrompts(recentPrompts);
         });
       } catch (e) {
         // Invalid URL for extension (e.g., chrome://)
@@ -128,6 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
     morphBtn.disabled = true;
     morphBtn.style.opacity = '0.7';
     statusArea.classList.remove('hidden');
+    statusArea.classList.remove('error');
+    statusText.style.color = '';
     statusText.textContent = 'Scanning & Generating UI...';
 
     // Send to active tab content script
@@ -157,7 +163,9 @@ document.addEventListener('DOMContentLoaded', () => {
               rp = rp.filter(p => p !== prompt); // remove duplicates
               rp.unshift(prompt);
               if (rp.length > 3) rp.pop(); // keep top 3
-              chrome.storage.local.set({ recentPrompts: rp });
+              chrome.storage.local.set({ recentPrompts: rp }, () => {
+                renderRecentPrompts(rp);
+              });
               
               if (activeMorphHint) {
                 activeMorphHint.classList.remove('hidden');
@@ -169,8 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Display error in the status area
             statusText.textContent = `Error: ${response?.error || 'Failed to apply morph.'}`;
             statusArea.classList.remove('hidden');
-            // Make it red
-            statusText.style.color = '#dc2626';
+            statusArea.classList.add('error');
           }
         });
       }

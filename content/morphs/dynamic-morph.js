@@ -6,7 +6,8 @@ window.DynamicMorph = class DynamicMorph extends window.BaseMorph {
     this.actions = parameters.actions || [];
     this.templateCSS = parameters.templateCSS || null;
     this.createdElements = new Map(); // Track created elements for easy cleanup
-    this.originalStyles = new Map(); // Track style changes for revert
+    this.modifiedElements = new Set(); // Track modified elements for style revert
+    this.originalStyles = new Map(); // Fallback if engine is not there
     this.styleElement = null;
   }
 
@@ -137,7 +138,10 @@ window.DynamicMorph = class DynamicMorph extends window.BaseMorph {
         if (targets.length > 0) {
           targets.forEach(target => {
             // Backup original styles before overwriting
-            if (!this.originalStyles.has(target)) {
+            if (window.morphEngine) {
+              window.morphEngine.getOriginalStyle(target);
+              this.modifiedElements.add(target);
+            } else if (!this.originalStyles.has(target)) {
               this.originalStyles.set(target, target.getAttribute('style') || '');
             }
 
@@ -188,12 +192,21 @@ window.DynamicMorph = class DynamicMorph extends window.BaseMorph {
     this.createdElements.clear();
 
     // 2. Restore original styles
-    for (const [target, originalStyle] of this.originalStyles.entries()) {
-      if (target) {
-        target.setAttribute('style', originalStyle);
+    if (window.morphEngine) {
+      for (const target of this.modifiedElements) {
+        if (target && window.morphEngine.globalOriginalStyles.has(target)) {
+          target.setAttribute('style', window.morphEngine.globalOriginalStyles.get(target));
+        }
       }
+      this.modifiedElements.clear();
+    } else {
+      for (const [target, originalStyle] of this.originalStyles.entries()) {
+        if (target) {
+          target.setAttribute('style', originalStyle);
+        }
+      }
+      this.originalStyles.clear();
     }
-    this.originalStyles.clear();
 
     console.log(`[DynamicMorph] Revert complete.`);
   }

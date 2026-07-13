@@ -79,7 +79,10 @@ body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-main); 
 .chip-locked { background: var(--locked-bg); color: var(--locked-text); border-color: var(--locked-border); cursor: not-allowed; }
 
 /* Status */
-.status-card { border: 1px solid #f1f5f9; background: #f8fafc; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.status-card { border: 1px solid #f1f5f9; background: #f8fafc; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; transition: all 0.3s ease-in-out; }
+.status-card.error { background: var(--red-bg); border-color: var(--red-border); }
+.status-card.error .status-content h4, .status-card.error .status-content p { color: var(--red-text); }
+.status-card.error .spinner { display: none; }
 .status-content h4 { margin: 0; font-size: 12px; color: #0f172a; }
 .status-content p { margin: 2px 0 0; font-size: 11px; color: #64748b; }
 .spinner { width: 24px; height: 24px; animation: spin 2s linear infinite; transform-origin: center; }
