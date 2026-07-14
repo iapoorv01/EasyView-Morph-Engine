@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const url = new URL(tabs[0].url);
         const hostname = url.hostname;
-        
+
         chrome.storage.local.get(['savedMorphs', 'recentPrompts'], (result) => {
           // Check for active morph on this site
           const savedMorphs = result.savedMorphs || {};
@@ -91,6 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (charCount) {
     promptInput.addEventListener('input', () => {
       charCount.textContent = `${promptInput.value.length} / 500`;
+      promptInput.style.height = 'auto';
+      promptInput.style.height = Math.min(promptInput.scrollHeight, 120) + 'px';
     });
   }
 
@@ -136,6 +138,10 @@ document.addEventListener('DOMContentLoaded', () => {
     statusText.style.color = '';
     statusText.textContent = 'Scanning & Generating UI...';
 
+    // Add thinking animation classes
+    document.querySelector('.prompt-container').classList.add('thinking');
+    morphBtn.classList.add('thinking');
+
     // Send to active tab content script
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -146,6 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }, (response) => {
           morphBtn.disabled = false;
           morphBtn.style.opacity = '1';
+          document.querySelector('.prompt-container').classList.remove('thinking');
+          morphBtn.classList.remove('thinking');
 
           if (chrome.runtime.lastError) {
             console.error('Error sending message:', chrome.runtime.lastError);
@@ -156,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           if (response && response.success) {
             statusArea.classList.add('hidden');
-            
+
             // Save prompt to history
             chrome.storage.local.get(['recentPrompts'], (res) => {
               let rp = res.recentPrompts || [];
@@ -166,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
               chrome.storage.local.set({ recentPrompts: rp }, () => {
                 renderRecentPrompts(rp);
               });
-              
+
               if (activeMorphHint) {
                 activeMorphHint.classList.remove('hidden');
               }
@@ -185,6 +193,8 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error(err);
       morphBtn.disabled = false;
       morphBtn.style.opacity = '1';
+      document.querySelector('.prompt-container').classList.remove('thinking');
+      morphBtn.classList.remove('thinking');
       statusArea.classList.add('hidden');
     }
   });
