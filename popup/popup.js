@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         el.addEventListener('click', () => {
           promptInput.value = p;
           promptInput.focus();
+          promptInput.dispatchEvent(new Event('input'));
         });
         recentPromptsList.appendChild(el);
       });
@@ -101,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chip.addEventListener('click', () => {
       promptInput.value = chip.dataset.prompt;
       promptInput.focus();
+      promptInput.dispatchEvent(new Event('input'));
     });
   });
 
