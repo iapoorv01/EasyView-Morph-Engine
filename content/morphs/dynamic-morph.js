@@ -30,6 +30,7 @@ window.DynamicMorph = class DynamicMorph extends window.BaseMorph {
     }
 
     console.log(`[DynamicMorph] Successfully applied dynamic actions.`);
+    return true;
   }
 
   async executeAction(action) {
@@ -165,6 +166,12 @@ window.DynamicMorph = class DynamicMorph extends window.BaseMorph {
       case 'removeElement': {
         const target = document.querySelector(action.targetSelector);
         if (target) {
+          if (window.morphEngine) {
+            window.morphEngine.getOriginalStyle(target);
+            this.modifiedElements.add(target);
+          } else if (!this.originalStyles.has(target)) {
+            this.originalStyles.set(target, target.getAttribute('style') || '');
+          }
           target.style.display = 'none'; // Safer than actual removal for revert purposes
         }
         break;
@@ -209,5 +216,6 @@ window.DynamicMorph = class DynamicMorph extends window.BaseMorph {
     }
 
     console.log(`[DynamicMorph] Revert complete.`);
+    return true;
   }
 };

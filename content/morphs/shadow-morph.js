@@ -89,6 +89,8 @@ window.ShadowMorph = class ShadowMorph extends window.BaseMorph {
 
     // 5. Data Sync Observer (Step 4)
     this.setupObserver();
+    
+    return true;
   }
 
   updateBindings(shadowRoot) {
@@ -164,5 +166,6 @@ window.ShadowMorph = class ShadowMorph extends window.BaseMorph {
     }
 
     console.log(`ShadowMorph reverted on ${this.targetContainerSelector}.`);
+    return true;
   }
 };
