@@ -26,6 +26,66 @@
 ---
 
 <details open>
+<summary><h2>🗓️ July 18, 2026: Maintenance UX & Superadmin Audit Hardening</h2></summary>
+
+> **Objective**: Transition the EasyView platform from a restrictive maintenance gate to an "Informative over Blocking" UX pattern, while deeply hardening Superadmin audit logs to decode low-level raw database queries into human-readable activity feeds.
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### 🛠️ Informative Maintenance & Global Controls
+*Ensuring maximum local utility even during cloud downtime while providing dynamic global management.*
+
+- **System-Wide Configuration Controls**: Successfully implemented the new Settings panel allowing Super Admins to instantly toggle **Maintenance Mode**, temporarily **Stop New Signups**, and globally configure AI limits with zero deployments required.
+- **Graceful Degradation UX**: Engineered a transparent maintenance architecture (`/api/platform-status`) that allows users to seamlessly use local offline features (like the Markdown Notebook) while explicitly preventing server-reliant AI decodes.
+- **Dynamic Badge Engine**: Implemented an animated, GPU-accelerated wrench icon inside the extension popup and a dismissable "Status Acknowledgement" glassmorphic modal, providing users full transparency without hard-blocking access.
+- **Unsaved Changes Tracking**: Built a dynamic state diffing tracker in the Admin Settings panel that actively monitors `originalSettings` vs `settings`, rendering a pulsing amber warning on the "Save Configuration" button to prevent configuration loss.
+
+</td>
+<td width="50%" valign="top">
+
+### 🕵️‍♂️ Advanced Audit Log Parsing & Support
+*Translating raw SQL updates into high-fidelity intelligence and improving user support.*
+
+- **Individual Decode Resets**: Added the capability to directly reset a specific user's free decodes count from their User 360 profile, allowing granular support rather than just global resets.
+- **Support Request Integration**: Deployed a direct Support Ticket / Feedback system accessible immediately when users run out of quotas or face issues, bridging the gap between end-users and the administrative triage inbox.
+- **JSON Payload Decoding**: Completely overhauled the `formatAdminLog` parsers across the Admin Dashboard, Settings Feed, and Staff Management views.
+- **Granular Action Mapping**: The system now dynamically intercepts generic `UPDATE on profiles` database commands and translates the inner JSON payload into explicit English sentences (e.g., "reset free decodes to 0 for user example@email.com", "granted custom premium access", or "banned user").
+- **Precision Tracking**: Global and individual decode resets are now distinctly logged and isolated, securing a perfect paper trail of administrative actions mapped directly to the originating staff member.
+
+</td>
+</tr>
+</table>
+
+### 📜 Verifiable Git Commit Log
+The following is an export of the commit log from the private platform repository:
+
+```text
+commit 995c09c
+Author: Abhi <171412961+iapoorv01@users.noreply.github.com>
+Date:   Sat Jul 18 12:27:46 2026 +0530
+
+    feat(admin): enhance maintenance UX and superadmin audit logs
+    
+ 13 files changed, 456 insertions(+), 292 deletions(-)
+```
+<img width="1918" height="583" alt="image" src="https://github.com/user-attachments/assets/e53441e5-3428-4df5-a305-36e567771872" />
+
+
+### 📸 Visual Verification
+
+<p align="center">
+  <img width="1912" alt="Unsaved Changes Indicator" src="https://github.com/user-attachments/assets/001116a7-a46b-4ff8-833c-9770fbd83825" />
+  <img width="48%" alt="Maintenance Mode" src="https://github.com/user-attachments/assets/61ce54c4-b259-4faa-8f32-cbd4e9667380" />
+  <img width="48%" alt="Stop Signup" src="https://github.com/user-attachments/assets/45ebe229-13ea-4cde-bcde-94f5b8d1dfd0" />
+  <img width="22%" alt="Maintenance Warning" src="https://github.com/user-attachments/assets/06cfb952-84c7-4c5b-9276-da5d8d13ffb6" />
+  <img width="22%" alt="Under Maintenance" src="https://github.com/user-attachments/assets/f7905678-af56-452d-9949-2394b06a1382" />
+</p>
+
+</details>
+
+<details>
 <summary><h2>🗓️ July 17, 2026: Premium Mobile Architecture & Advanced Analytics Forecasting</h2></summary>
 
 > **Objective**: Re-architect the EasyView Admin ecosystem for premium mobile responsiveness using a zero-impact CSS strategy, deploy a robust Web Store Review Scraper for multi-platform intelligence, and launch an AI-driven OLS forecasting engine for the Analytics Dashboard.
