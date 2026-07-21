@@ -128,9 +128,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const statusDetail = document.querySelector('.status-content p');
+
   morphBtn.addEventListener('click', async () => {
     const prompt = promptInput.value.trim();
-    if (!prompt) return;
+    if (!prompt) {
+      promptInput.focus();
+      statusText.textContent = 'Please enter a prompt first.';
+      if (statusDetail) {
+        statusDetail.textContent = 'Describe how you want this website to look, or pick a Quick Preset.';
+      }
+      statusArea.classList.remove('hidden');
+      statusArea.classList.add('error');
+      return;
+    }
 
     // UI feedback
     morphBtn.disabled = true;
@@ -139,6 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
     statusArea.classList.remove('error');
     statusText.style.color = '';
     statusText.textContent = 'Scanning & Generating UI...';
+    if (statusDetail) {
+      statusDetail.textContent = 'Applying your preferences to this website';
+    }
 
     // Add thinking animation classes
     document.querySelector('.prompt-container').classList.add('thinking');

@@ -93,6 +93,7 @@
           console.error(err);
           sendResponse({ success: false, error: err.message });
         });
+      return true; // Keep message channel open for async response
     } else if (request.action === 'EXECUTE_DYNAMIC_MORPH') {
       handleDynamicMorphExecution(request.payload.prompt)
         .then(() => sendResponse({ success: true }))
